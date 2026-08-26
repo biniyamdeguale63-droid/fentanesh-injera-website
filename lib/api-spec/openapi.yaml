@@ -10,6 +10,10 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: pricing
+    description: Wholesale pricing operations
+  - name: samples
+    description: Sample request operations
 paths:
   /healthz:
     get:
@@ -24,6 +28,65 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /pricing:
+    get:
+      operationId: getPricing
+      tags: [pricing]
+      summary: Calculate wholesale injera pricing
+      description: Returns tiered pricing for White teff or Red teff based on quantity.
+      parameters:
+        - name: qty
+          in: query
+          required: true
+          description: Number of injera items
+          schema:
+            type: number
+            minimum: 1
+        - name: type
+          in: query
+          required: true
+          description: Teff variety
+          schema:
+            type: string
+            enum: [white, red]
+      responses:
+        "200":
+          description: Calculated wholesale price
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pricing"
+        "400":
+          description: Invalid pricing parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /request-sample:
+    post:
+      operationId: requestSample
+      tags: [samples]
+      summary: Submit a sample request
+      description: Receives a business sample request and returns a confirmation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SampleRequestInput"
+      responses:
+        "201":
+          description: Sample request received
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SampleRequest"
+        "400":
+          description: Invalid sample request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +96,101 @@ components:
           type: string
       required:
         - status
+    Pricing:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [white, red]
+        label:
+          type: string
+        qty:
+          type: number
+        baseUnitPrice:
+          type: number
+        unitPrice:
+          type: number
+        discountPercent:
+          type: number
+        savings:
+          type: number
+        total:
+          type: number
+        currency:
+          type: string
+      required:
+        - type
+        - label
+        - qty
+        - baseUnitPrice
+        - unitPrice
+        - discountPercent
+        - savings
+        - total
+        - currency
+    SampleRequestInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+        business:
+          type: string
+          minLength: 2
+        email:
+          type: string
+          pattern: "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+        phone:
+          type: string
+          minLength: 7
+        quantity:
+          type: number
+          minimum: 1
+        message:
+          type: string
+      required:
+        - name
+        - business
+        - email
+        - phone
+        - quantity
+    SampleRequest:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum: [received]
+        submittedAt:
+          type: string
+          format: date-time
+        name:
+          type: string
+        business:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        quantity:
+          type: number
+        message:
+          type: string
+      required:
+        - id
+        - status
+        - submittedAt
+        - name
+        - business
+        - email
+        - phone
+        - quantity
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
 

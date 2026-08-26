@@ -1,15 +1,15 @@
-# [Project name]
+# Mitmit Wholesale Injera
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Mitmit helps Addis businesses price and request fresh wholesale injera deliveries.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm --filter @workspace/api-server run dev` — run the Express API server
+- `pnpm --filter @workspace/injera-delivery run dev` — run the customer-facing storefront
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
 
 ## Stack
 
@@ -22,15 +22,20 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/api-server/src/routes/` — Express API route handlers
+- `artifacts/api-server/src/lib/pricing.ts` — wholesale pricing tiers and calculation logic
+- `artifacts/injera-delivery/src/App.tsx` — storefront experience and API-backed interactions
+- `artifacts/injera-delivery/src/index.css` — storefront design tokens and styling
+- `lib/api-spec/openapi.yaml` — source of truth for API contracts
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Pricing discounts are 5% at 200+ items and 10% at 500+ items for either teff variety.
+- Sample requests are accepted in-process by the API and return a confirmation immediately; no customer data is written to a database yet.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+The storefront introduces Mitmit’s B2B delivery service, calculates live White teff and Red teff wholesale prices with volume discounts, and accepts sample requests from prospective business customers.
 
 ## User preferences
 
