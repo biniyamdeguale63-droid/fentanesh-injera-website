@@ -129,6 +129,10 @@ components:
         - total
         - currency
     SampleRequestInput:
+      oneOf:
+        - $ref: "#/components/schemas/LegacySampleRequestInput"
+        - $ref: "#/components/schemas/StorefrontSampleRequestInput"
+    LegacySampleRequestInput:
       type: object
       properties:
         name:
@@ -154,7 +158,35 @@ components:
         - email
         - phone
         - quantity
+    StorefrontSampleRequestInput:
+      type: object
+      properties:
+        business:
+          type: string
+          minLength: 2
+        phone:
+          type: string
+          minLength: 7
+        dailyNeed:
+          type: string
+          minLength: 1
+        teffType:
+          type: string
+          minLength: 1
+        deliveryAddress:
+          type: string
+          minLength: 2
+      required:
+        - business
+        - phone
+        - dailyNeed
+        - teffType
+        - deliveryAddress
     SampleRequest:
+      oneOf:
+        - $ref: "#/components/schemas/LegacySampleRequest"
+        - $ref: "#/components/schemas/StorefrontSampleRequest"
+    LegacySampleRequest:
       type: object
       properties:
         id:
@@ -186,6 +218,36 @@ components:
         - email
         - phone
         - quantity
+    StorefrontSampleRequest:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum: [received]
+        submittedAt:
+          type: string
+          format: date-time
+        business:
+          type: string
+        phone:
+          type: string
+        dailyNeed:
+          type: string
+        teffType:
+          type: string
+        deliveryAddress:
+          type: string
+      required:
+        - id
+        - status
+        - submittedAt
+        - business
+        - phone
+        - dailyNeed
+        - teffType
+        - deliveryAddress
     Error:
       type: object
       properties:

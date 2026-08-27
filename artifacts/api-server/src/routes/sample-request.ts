@@ -11,22 +11,30 @@ const telegramChatId = process.env.TELEGRAM_CHAT_ID ?? "8214073133";
 
 async function sendTelegramNotification(request: {
   id: string;
-  name: string;
   business: string;
-  email: string;
   phone: string;
-  quantity: number;
+  name?: string;
+  email?: string;
+  quantity?: number;
   message?: string;
+  dailyNeed?: string;
+  teffType?: string;
+  deliveryAddress?: string;
 }): Promise<void> {
   const connectors = new ReplitConnectors();
   const text = [
     "New sample request received",
     "",
     `Business: ${request.business}`,
-    `Contact name: ${request.name}`,
     `Phone: ${request.phone}`,
-    `Email: ${request.email}`,
-    `Quantity: ${request.quantity}`,
+    request.dailyNeed ? `Estimated daily need: ${request.dailyNeed}` : undefined,
+    request.teffType ? `Preferred teff type: ${request.teffType}` : undefined,
+    request.deliveryAddress
+      ? `Delivery address / requirements: ${request.deliveryAddress}`
+      : undefined,
+    request.name ? `Contact name: ${request.name}` : undefined,
+    request.email ? `Email: ${request.email}` : undefined,
+    request.quantity !== undefined ? `Quantity: ${request.quantity}` : undefined,
     request.message ? `Message: ${request.message}` : undefined,
     `Request ID: ${request.id}`,
   ]
@@ -55,13 +63,11 @@ router.post("/request-sample", (req, res): void => {
 
   if (!parsed.success) {
     req.log.warn({ errors: parsed.error.issues }, "Invalid sample request");
-    res.status(400).json({
-      error: "Please check your name, business, contact details, and quantity.",
-    });
+    res.status(400).json({ error: "Please check the submitted sample details." });
     return;
   }
 
-  if (!Number.isInteger(parsed.data.quantity)) {
+  if ("quantity" in parsed.data && !Number.isInteger(parsed.data.quantity)) {
     res.status(400).json({ error: "Quantity must be a whole number." });
     return;
   }

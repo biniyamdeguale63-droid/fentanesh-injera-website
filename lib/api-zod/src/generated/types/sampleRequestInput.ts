@@ -5,17 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { LegacySampleRequestInput } from './legacySampleRequestInput';
+import type { StorefrontSampleRequestInput } from './storefrontSampleRequestInput';
 
-export interface SampleRequestInput {
-  /** @minLength 2 */
-  name: string;
-  /** @minLength 2 */
-  business: string;
-  /** @pattern ^[^\s@]+@[^\s@]+\.[^\s@]+$ */
-  email: string;
-  /** @minLength 7 */
-  phone: string;
-  /** @minimum 1 */
-  quantity: number;
-  message?: string;
-}
+export type SampleRequestInput = LegacySampleRequestInput | StorefrontSampleRequestInput;

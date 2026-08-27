@@ -5,16 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-import type { SampleRequestStatus } from './sampleRequestStatus';
+import type { LegacySampleRequest } from './legacySampleRequest';
+import type { StorefrontSampleRequest } from './storefrontSampleRequest';
 
-export interface SampleRequest {
-  id: string;
-  status: SampleRequestStatus;
-  submittedAt: Date;
-  name: string;
-  business: string;
-  email: string;
-  phone: string;
-  quantity: number;
-  message?: string;
-}
+export type SampleRequest = LegacySampleRequest | StorefrontSampleRequest;

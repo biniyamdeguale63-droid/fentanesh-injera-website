@@ -29,7 +29,7 @@ export interface Pricing {
   currency: string;
 }
 
-export interface SampleRequestInput {
+export interface LegacySampleRequestInput {
   /** @minLength 2 */
   name: string;
   /** @minLength 2 */
@@ -43,16 +43,31 @@ export interface SampleRequestInput {
   message?: string;
 }
 
-export type SampleRequestStatus = typeof SampleRequestStatus[keyof typeof SampleRequestStatus];
+export interface StorefrontSampleRequestInput {
+  /** @minLength 2 */
+  business: string;
+  /** @minLength 7 */
+  phone: string;
+  /** @minLength 1 */
+  dailyNeed: string;
+  /** @minLength 1 */
+  teffType: string;
+  /** @minLength 2 */
+  deliveryAddress: string;
+}
+
+export type SampleRequestInput = LegacySampleRequestInput | StorefrontSampleRequestInput;
+
+export type LegacySampleRequestStatus = typeof LegacySampleRequestStatus[keyof typeof LegacySampleRequestStatus];
 
 
-export const SampleRequestStatus = {
+export const LegacySampleRequestStatus = {
   received: 'received',
 } as const;
 
-export interface SampleRequest {
+export interface LegacySampleRequest {
   id: string;
-  status: SampleRequestStatus;
+  status: LegacySampleRequestStatus;
   submittedAt: string;
   name: string;
   business: string;
@@ -61,6 +76,26 @@ export interface SampleRequest {
   quantity: number;
   message?: string;
 }
+
+export type StorefrontSampleRequestStatus = typeof StorefrontSampleRequestStatus[keyof typeof StorefrontSampleRequestStatus];
+
+
+export const StorefrontSampleRequestStatus = {
+  received: 'received',
+} as const;
+
+export interface StorefrontSampleRequest {
+  id: string;
+  status: StorefrontSampleRequestStatus;
+  submittedAt: string;
+  business: string;
+  phone: string;
+  dailyNeed: string;
+  teffType: string;
+  deliveryAddress: string;
+}
+
+export type SampleRequest = LegacySampleRequest | StorefrontSampleRequest;
 
 export interface Error {
   error: string;

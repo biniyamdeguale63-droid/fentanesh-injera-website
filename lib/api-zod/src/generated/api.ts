@@ -46,26 +46,40 @@ export const GetPricingResponse = zod.object({
  * Receives a business sample request and returns a confirmation.
  * @summary Submit a sample request
  */
-export const requestSampleBodyNameMin = 2;
+export const requestSampleBodyOneNameMin = 2;
 
-export const requestSampleBodyBusinessMin = 2;
+export const requestSampleBodyOneBusinessMin = 2;
 
-export const requestSampleBodyEmailRegExp = new RegExp('^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$');
-export const requestSampleBodyPhoneMin = 7;
-
-
+export const requestSampleBodyOneEmailRegExp = new RegExp('^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$');
+export const requestSampleBodyOnePhoneMin = 7;
 
 
-export const RequestSampleBody = zod.object({
-  "name": zod.string().min(requestSampleBodyNameMin),
-  "business": zod.string().min(requestSampleBodyBusinessMin),
-  "email": zod.string().regex(requestSampleBodyEmailRegExp),
-  "phone": zod.string().min(requestSampleBodyPhoneMin),
+export const requestSampleBodyTwoBusinessMin = 2;
+
+export const requestSampleBodyTwoPhoneMin = 7;
+
+
+
+export const requestSampleBodyTwoDeliveryAddressMin = 2;
+
+
+
+export const RequestSampleBody = zod.union([zod.object({
+  "name": zod.string().min(requestSampleBodyOneNameMin),
+  "business": zod.string().min(requestSampleBodyOneBusinessMin),
+  "email": zod.string().regex(requestSampleBodyOneEmailRegExp),
+  "phone": zod.string().min(requestSampleBodyOnePhoneMin),
   "quantity": zod.number().min(1),
   "message": zod.string().optional()
-})
+}),zod.object({
+  "business": zod.string().min(requestSampleBodyTwoBusinessMin),
+  "phone": zod.string().min(requestSampleBodyTwoPhoneMin),
+  "dailyNeed": zod.string().min(1),
+  "teffType": zod.string().min(1),
+  "deliveryAddress": zod.string().min(requestSampleBodyTwoDeliveryAddressMin)
+})])
 
-export const RequestSampleResponse = zod.object({
+export const RequestSampleResponse = zod.union([zod.object({
   "id": zod.string(),
   "status": zod.enum(['received']),
   "submittedAt": zod.coerce.date(),
@@ -75,6 +89,15 @@ export const RequestSampleResponse = zod.object({
   "phone": zod.string(),
   "quantity": zod.number(),
   "message": zod.string().optional()
-})
+}),zod.object({
+  "id": zod.string(),
+  "status": zod.enum(['received']),
+  "submittedAt": zod.coerce.date(),
+  "business": zod.string(),
+  "phone": zod.string(),
+  "dailyNeed": zod.string(),
+  "teffType": zod.string(),
+  "deliveryAddress": zod.string()
+})])
 
 

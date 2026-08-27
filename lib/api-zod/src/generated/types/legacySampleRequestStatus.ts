@@ -6,9 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type SampleRequestStatus = typeof SampleRequestStatus[keyof typeof SampleRequestStatus];
+export type LegacySampleRequestStatus = typeof LegacySampleRequestStatus[keyof typeof LegacySampleRequestStatus];
 
 
-export const SampleRequestStatus = {
+export const LegacySampleRequestStatus = {
   received: 'received',
 } as const;

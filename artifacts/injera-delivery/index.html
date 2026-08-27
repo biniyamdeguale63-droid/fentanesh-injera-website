@@ -283,18 +283,18 @@ Whether supplying weddings or corporate events, our production capacity ensures 
 <div class="grid md:grid-cols-2 gap-6">
 <div>
 <label class="block text-xs font-semibold text-brand-300 uppercase tracking-wider mb-2">Business / Hotel Name</label>
-<input type="text" required class="w-full bg-brand-900/80 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-400 transition-colors" placeholder="e.g. Skylight Hotel">
+<input name="business" type="text" required class="w-full bg-brand-900/80 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-400 transition-colors" placeholder="e.g. Skylight Hotel">
 </div>
 <div>
 <label class="block text-xs font-semibold text-brand-300 uppercase tracking-wider mb-2">Phone Number</label>
-<input type="tel" required class="w-full bg-brand-900/80 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-400 transition-colors" placeholder="+251 911 ...">
+<input name="phone" type="tel" required class="w-full bg-brand-900/80 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-400 transition-colors" placeholder="+251 911 ...">
 </div>
 </div>
 
 <div class="grid md:grid-cols-2 gap-6">
 <div>
 <label class="block text-xs font-semibold text-brand-300 uppercase tracking-wider mb-2">Estimated Daily Need</label>
-<select class="w-full bg-brand-900/80 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-400 transition-colors">
+<select name="dailyNeed" required class="w-full bg-brand-900/80 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-400 transition-colors">
 <option>50 - 200 Injera / day</option>
 <option>200 - 500 Injera / day</option>
 <option>500+ Injera / day</option>
@@ -302,7 +302,7 @@ Whether supplying weddings or corporate events, our production capacity ensures 
 </div>
 <div>
 <label class="block text-xs font-semibold text-brand-300 uppercase tracking-wider mb-2">Preferred Teff Type</label>
-<select class="w-full bg-brand-900/80 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-400 transition-colors">
+<select name="teffType" required class="w-full bg-brand-900/80 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-400 transition-colors">
 <option>White Teff (Nech)</option>
 <option>Red Teff (Key)</option>
 <option>Mixed Order</option>
@@ -312,15 +312,16 @@ Whether supplying weddings or corporate events, our production capacity ensures 
 
 <div>
 <label class="block text-xs font-semibold text-brand-300 uppercase tracking-wider mb-2">Delivery Address / Specific Requirements</label>
-<textarea rows="4" class="w-full bg-brand-900/80 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-400 transition-colors" placeholder="Mention your location and preferred delivery time..."></textarea>
+<textarea name="deliveryAddress" rows="4" required class="w-full bg-brand-900/80 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-400 transition-colors" placeholder="Mention your location and preferred delivery time..."></textarea>
 </div>
 
-<button type="submit" class="w-full bg-brand-500 hover:bg-brand-400 text-white font-bold py-4 rounded-xl transition-all shadow-glow uppercase tracking-wider text-sm">
+<button id="submit-request" type="submit" class="w-full bg-brand-500 hover:bg-brand-400 text-white font-bold py-4 rounded-xl transition-all shadow-glow uppercase tracking-wider text-sm">
 Submit Request
 </button>
-<div id="form-success" class="hidden text-center text-green-400 font-semibold pt-2">
+<div id="form-success" role="status" aria-live="polite" class="hidden text-center text-green-400 font-semibold pt-2">
 ✓ Request sent successfully! Our representative will contact you shortly.
 </div>
+<div id="form-error" role="alert" aria-live="assertive" class="hidden text-center text-red-300 font-semibold pt-2"></div>
 </form>
 </div>
 </section>
@@ -365,10 +366,46 @@ document.getElementById('unit-price').innerText = basePrice.toFixed(2) + " ETB";
 document.getElementById('total-price').innerText = total.toLocaleString() + " ETB";
 }
 
-function handleFormSubmit(e) {
+async function handleFormSubmit(e) {
 e.preventDefault();
-document.getElementById('form-success').classList.remove('hidden');
-e.target.reset();
+  const form = e.currentTarget;
+  const button = document.getElementById('submit-request');
+  const success = document.getElementById('form-success');
+  const error = document.getElementById('form-error');
+  const originalButtonText = button.innerText;
+
+  success.classList.add('hidden');
+  error.classList.add('hidden');
+  button.disabled = true;
+  button.innerText = 'Sending request...';
+
+  try {
+    const response = await fetch('/api/request-sample', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        business: form.elements.business.value.trim(),
+        phone: form.elements.phone.value.trim(),
+        dailyNeed: form.elements.dailyNeed.value,
+        teffType: form.elements.teffType.value,
+        deliveryAddress: form.elements.deliveryAddress.value.trim(),
+      }),
+    });
+
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(result.error || 'We could not send your request.');
+    }
+
+    success.classList.remove('hidden');
+    form.reset();
+  } catch (requestError) {
+    error.textContent = requestError.message || 'We could not send your request. Please try again.';
+    error.classList.remove('hidden');
+  } finally {
+    button.disabled = false;
+    button.innerText = originalButtonText;
+  }
 }
 </script>
 </body>

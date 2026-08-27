@@ -2,7 +2,7 @@ import { useMemo, useState, type FormEvent } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ArrowDownRight, ArrowRight, Check, CircleCheck, Clock3, Info, Mail, MapPin, Menu, Minus, Phone, Plus, RefreshCw, ShieldCheck, X } from 'lucide-react';
 import { getGetPricingQueryKey, getHealthCheckQueryKey, useGetPricing, useHealthCheck, useRequestSample } from '@workspace/api-client-react';
-import type { SampleRequestInput } from '@workspace/api-client-react';
+import type { LegacySampleRequestInput } from '@workspace/api-client-react';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -221,10 +221,10 @@ function PricingDesk() {
 
 function SampleForm() {
   const requestSample = useRequestSample();
-  const [form, setForm] = useState<SampleRequestInput>({ name: '', business: '', email: '', phone: '', quantity: 24, message: '' });
+  const [form, setForm] = useState<LegacySampleRequestInput>({ name: '', business: '', email: '', phone: '', quantity: 24, message: '' });
   const [submitted, setSubmitted] = useState<{ id: string; status: string } | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const update = (key: keyof SampleRequestInput, value: string | number) => setForm((current) => ({ ...current, [key]: value }));
+  const update = (key: keyof LegacySampleRequestInput, value: string | number) => setForm((current) => ({ ...current, [key]: value }));
   const validate = () => {
     const next: Record<string, string> = {};
     if (form.name.trim().length < 2) next.name = 'Please add your full name.';
