@@ -1,93 +1,35 @@
-import { randomUUID } from "node:crypto";
 import { Router, type IRouter } from "express";
-import { ReplitConnectors } from "@replit/connectors-sdk";
-import {
-  RequestSampleBody,
-  RequestSampleResponse,
-} from "@workspace/api-zod";
 
 const router: IRouter = Router();
-const telegramChatId = process.env.TELEGRAM_CHAT_ID ?? "8214073133";
 
-async function sendTelegramNotification(request: {
-  id: string;
-  business: string;
-  phone: string;
-  name?: string;
-  email?: string;
-  quantity?: number;
-  message?: string;
-  dailyNeed?: string;
-  teffType?: string;
-  deliveryAddress?: string;
-}): Promise<void> {
-  const connectors = new ReplitConnectors();
-  const text = [
-    "New sample request received",
-    "",
-    `Business: ${request.business}`,
-    `Phone: ${request.phone}`,
-    request.dailyNeed ? `Estimated daily need: ${request.dailyNeed}` : undefined,
-    request.teffType ? `Preferred teff type: ${request.teffType}` : undefined,
-    request.deliveryAddress
-      ? `Delivery address / requirements: ${request.deliveryAddress}`
-      : undefined,
-    request.name ? `Contact name: ${request.name}` : undefined,
-    request.email ? `Email: ${request.email}` : undefined,
-    request.quantity !== undefined ? `Quantity: ${request.quantity}` : undefined,
-    request.message ? `Message: ${request.message}` : undefined,
-    `Request ID: ${request.id}`,
-  ]
-    .filter((line): line is string => Boolean(line))
-    .join("\n");
+const handler = async (req: any, res: any) => {
+  console.log("--- REQUEST RECEIVED ---", req.body);
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  const chatId = process.env.TELEGRAM_CHAT_ID;
 
-  const response = await connectors.proxy("telegram", "/sendMessage", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: telegramChatId,
-      text,
-    }),
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-    throw new Error(
-      `Telegram notification failed (${response.status}): ${errorBody}`,
-    );
-  }
-}
-
-router.post("/request-sample", (req, res): void => {
-  const parsed = RequestSampleBody.safeParse(req.body);
-
-  if (!parsed.success) {
-    req.log.warn({ errors: parsed.error.issues }, "Invalid sample request");
-    res.status(400).json({ error: "Please check the submitted sample details." });
-    return;
+  if (token && chatId) {
+    try {
+      await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: `📩 New B2B Request Received:\n\n${JSON.stringify(req.body, null, 2)}`,
+        }),
+      });
+    } catch (err) {
+      console.error("Telegram Error:", err);
+    }
+  } else {
+    console.warn("TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID missing in .env");
   }
 
-  if ("quantity" in parsed.data && !Number.isInteger(parsed.data.quantity)) {
-    res.status(400).json({ error: "Quantity must be a whole number." });
-    return;
-  }
+  return res.status(200).json({ success: true, message: "Request sent successfully!" });
+};
 
-  const request = {
-    id: `sample-${randomUUID()}`,
-    status: "received" as const,
-    submittedAt: new Date(),
-    ...parsed.data,
-  };
-
-  req.log.info(
-    { requestId: request.id, business: request.business },
-    "Sample request received",
-  );
-  void sendTelegramNotification(request).catch((err: unknown) => {
-    req.log.error({ err, requestId: request.id }, "Failed to send Telegram message");
-  });
-
-  res.status(201).json(RequestSampleResponse.parse(request));
-});
+router.post("/sample-request", handler);
+router.post("/request-sample", handler);
+router.post("/requests", handler);
+router.post("/contact", handler);
 
 export default router;

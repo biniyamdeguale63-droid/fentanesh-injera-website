@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Owner Settings - Fentanesh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+theme: {
+extend: {
+colors: {
+brand: {
+50: '#fdf8f5', 100: '#f9eee7', 200: '#f2dbcc', 300: '#e8c1aa',
+400: '#dc9e80', 500: '#d2805c', 600: '#c56441', 700: '#a54e35',
+800: '#85412f', 900: '#2A1A14',
+}
+},
+fontFamily: {
+serif: ['"Playfair Display"', 'serif'],
+sans: ['Inter', 'sans-serif'],
+}
+}
+}
+};
+</script>
+<style>
+body { background-color: #fdf8f5; color: #2A1A14; }
+</style>
+</head>
+<body class="font-sans min-h-screen flex items-center justify-center p-4">
+
+<div class="w-full max-w-lg bg-white border border-brand-200 rounded-3xl p-8 md:p-10 shadow-xl">
+
+<a href="index.html" class="text-sm text-brand-500 hover:text-brand-600 flex items-center gap-2 mb-6">&larr; Back to site</a>
+
+<h1 class="text-3xl font-serif font-bold text-brand-900 mb-1">Owner Settings</h1>
+<p class="text-brand-900/60 text-sm mb-8">Update pricing and contact details shown on the site.</p>
+
+<form id="settings-form" class="space-y-5">
+
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-xs font-semibold text-brand-900/70 uppercase tracking-wider mb-2">White Teff Price (ETB)</label>
+<input type="number" step="0.01" name="white" id="field-white" required class="w-full bg-brand-50 border border-brand-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-400 transition-colors">
+</div>
+<div>
+<label class="block text-xs font-semibold text-brand-900/70 uppercase tracking-wider mb-2">Red Teff Price (ETB)</label>
+<input type="number" step="0.01" name="red" id="field-red" required class="w-full bg-brand-50 border border-brand-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-400 transition-colors">
+</div>
+</div>
+
+<div>
+<label class="block text-xs font-semibold text-brand-900/70 uppercase tracking-wider mb-2">Minimum Daily Order (pieces)</label>
+<input type="number" name="minOrder" id="field-minOrder" required class="w-full bg-brand-50 border border-brand-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-400 transition-colors">
+</div>
+
+<div>
+<label class="block text-xs font-semibold text-brand-900/70 uppercase tracking-wider mb-2">Contact Phone</label>
+<input type="text" name="phone" id="field-phone" required class="w-full bg-brand-50 border border-brand-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-400 transition-colors">
+</div>
+
+<div>
+<label class="block text-xs font-semibold text-brand-900/70 uppercase tracking-wider mb-2">Contact Email</label>
+<input type="email" name="email" id="field-email" required class="w-full bg-brand-50 border border-brand-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-400 transition-colors">
+</div>
+
+<div class="pt-4 border-t border-brand-100">
+<label class="block text-xs font-semibold text-brand-900/70 uppercase tracking-wider mb-2">Owner Password</label>
+<input type="password" name="password" id="field-password" required class="w-full bg-brand-50 border border-brand-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-400 transition-colors" placeholder="Enter password to confirm">
+</div>
+
+<button type="submit" id="update-btn" class="w-full bg-brand-500 hover:bg-brand-600 text-white py-4 rounded-full font-bold transition-all shadow-lg">Update Settings</button>
+
+<div id="settings-success" class="hidden text-center text-green-600 font-semibold pt-2">&#10003; Settings updated successfully.</div>
+<div id="settings-error" class="hidden text-center text-red-500 font-semibold pt-2"></div>
+
+</form>
+</div>
+
+<script>
+async function loadCurrentSettings() {
+  try {
+    const res = await fetch('/api/settings');
+    const data = await res.json();
+    document.getElementById('field-white').value = data.white;
+    document.getElementById('field-red').value = data.red;
+    document.getElementById('field-minOrder').value = data.minOrder;
+    document.getElementById('field-phone').value = data.phone;
+    document.getElementById('field-email').value = data.email;
+  } catch (err) {
+    console.warn('Could not load current settings.');
+  }
+}
+loadCurrentSettings();
+
+document.getElementById('settings-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const form = e.currentTarget;
+  const btn = document.getElementById('update-btn');
+  const success = document.getElementById('settings-success');
+  const error = document.getElementById('settings-error');
+  success.classList.add('hidden');
+  error.classList.add('hidden');
+  btn.disabled = true;
+  btn.textContent = 'Updating...';
+
+  const payload = {
+    white: form.white.value,
+    red: form.red.value,
+    minOrder: form.minOrder.value,
+    phone: form.phone.value,
+    email: form.email.value,
+    password: form.password.value,
+  };
+
+  try {
+    const res = await fetch('/api/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      success.classList.remove('hidden');
+      form.password.value = '';
+    } else {
+      error.textContent = data.message === 'Wrong password' ? 'Incorrect password. Please try again.' : 'Something went wrong. Please try again.';
+      error.classList.remove('hidden');
+    }
+  } catch (err) {
+    error.textContent = 'Could not connect to the server.';
+    error.classList.remove('hidden');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Update Settings';
+  }
+});
+</script>
+
+</body>
+</html>
