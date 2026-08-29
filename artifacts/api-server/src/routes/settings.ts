@@ -16,6 +16,8 @@ function readSettings() {
       minOrder: 50,
       phone: "+251923065023",
       email: "fentanesh2321@gmail.com",
+      address: "ቢቸና መሀል አደባባይ",
+      mapsUrl: "https://www.google.com/maps/search/?api=1&query=10.4506883,38.1994662",
     };
   }
 }
@@ -36,12 +38,16 @@ router.post("/settings", (req, res) => {
   const minOrderVal = parseInt(req.body.minOrder, 10);
   const phoneVal = typeof req.body.phone === "string" && req.body.phone.trim() !== "" ? req.body.phone.trim() : current.phone;
   const emailVal = typeof req.body.email === "string" && req.body.email.trim() !== "" ? req.body.email.trim() : current.email;
+  const addressVal = typeof req.body.address === "string" && req.body.address.trim() !== "" ? req.body.address.trim() : current.address;
+  const mapsUrlVal = typeof req.body.mapsUrl === "string" && req.body.mapsUrl.trim() !== "" ? req.body.mapsUrl.trim() : current.mapsUrl;
   const updated = {
     white: isNaN(whiteVal) ? current.white : whiteVal,
     red: isNaN(redVal) ? current.red : redVal,
     minOrder: isNaN(minOrderVal) ? current.minOrder : minOrderVal,
     phone: phoneVal,
     email: emailVal,
+    address: addressVal,
+    mapsUrl: mapsUrlVal,
   };
   fs.writeFileSync(dataFile, JSON.stringify(updated, null, 2));
   res.status(200).json({ success: true, ...updated });
