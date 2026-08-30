@@ -355,6 +355,11 @@ Whether supplying weddings or corporate events, our production capacity ensures 
 <a id="contact-phone-link" href="tel:+251923065023" class="flex items-center gap-2 hover:text-white transition-colors"><i class="fas fa-phone text-brand-400"></i><span id="contact-phone-text">+251923065023</span></a>
 <a id="contact-email-link" href="mailto:fentanesh2321@gmail.com" class="flex items-center gap-2 hover:text-white transition-colors"><i class="fas fa-envelope text-brand-400"></i><span id="contact-email-text">fentanesh2321@gmail.com</span></a>
 </div>
+<div class="flex flex-col items-center gap-2 mt-6">
+<a id="contact-address-link" href="#" target="_blank" class="flex items-center gap-2 text-brand-100 hover:text-white transition-colors mb-2"><i class="fas fa-location-dot text-brand-400"></i><span id="contact-address-text">Addis Ababa, Ethiopia</span></a>
+<img id="contact-qr-code" src="" alt="Scan to open our location" class="w-28 h-28 rounded-xl border border-white/20 bg-white p-1.5">
+<p class="text-xs text-brand-100/60">Scan to open our location</p>
+</div>
 </div>
 
 <form id="contact-form" onsubmit="handleFormSubmit(event)" class="space-y-6 bg-brand-800/30 p-8 rounded-3xl border border-white/10 backdrop-blur-md">
@@ -440,6 +445,12 @@ async function loadSiteSettings() {
     if (phoneText && data.phone) { phoneText.textContent = data.phone; }
     if (emailLink && data.email) { emailLink.href = 'mailto:' + data.email; }
     if (emailText && data.email) { emailText.textContent = data.email; }
+    var addressLink = document.getElementById('contact-address-link');
+    var addressText = document.getElementById('contact-address-text');
+    var qrImg = document.getElementById('contact-qr-code');
+    if (addressLink && data.mapsUrl) { addressLink.href = data.mapsUrl; }
+    if (addressText && data.address) { addressText.textContent = data.address; }
+    if (qrImg && data.mapsUrl) { qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(data.mapsUrl); }
     const qtySlider = document.getElementById('qty-slider');
     if (qtySlider && data.minOrder) { qtySlider.min = data.minOrder; if (parseInt(qtySlider.value) < data.minOrder) { qtySlider.value = data.minOrder; } }
     if (typeof updateCalculator === 'function') { updateCalculator(); }
