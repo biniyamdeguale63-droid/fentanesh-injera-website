@@ -2,6 +2,16 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "fentanesh-injera-b2b",
   "compatibility_date": "2026-08-28",
+  "main": "./worker.js",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application"
+  }
+}{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "fentanesh-injera-b2b",
+  "compatibility_date": "2026-08-28",
   "assets": {
     "directory": "./dist",
     "not_found_handling": "single-page-application"
