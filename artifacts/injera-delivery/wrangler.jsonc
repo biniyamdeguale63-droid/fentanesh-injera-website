@@ -7,5 +7,11 @@
     "directory": "./dist",
     "binding": "ASSETS",
     "not_found_handling": "single-page-application"
-  }
+  },
+  "kv_namespaces": [
+    {
+      "binding": "PRICING_KV",
+      "id": "9a5a5d63cfbb416a9af4f619fc873e70"
+    }
+  ]
 }
