@@ -95,8 +95,6 @@ async function loadCurrentSettings() {
   try {
     const res = await fetch('/api/settings');
     const data = await res.json();
-    document.getElementById('field-white').value = data.white;
-    document.getElementById('field-red').value = data.red;
     document.getElementById('field-minOrder').value = data.minOrder;
     document.getElementById('field-phone').value = data.phone;
     document.getElementById('field-email').value = data.email;
@@ -104,6 +102,14 @@ async function loadCurrentSettings() {
     document.getElementById('field-mapsUrl').value = data.mapsUrl;
   } catch (err) {
     console.warn('Could not load current settings.');
+  }
+  try {
+    const priceRes = await fetch('/api/pricing');
+    const priceData = await priceRes.json();
+    document.getElementById('field-white').value = priceData.white;
+    document.getElementById('field-red').value = priceData.red;
+  } catch (err) {
+    console.warn('Could not load current pricing.');
   }
 }
 loadCurrentSettings();
@@ -138,7 +144,28 @@ document.getElementById('settings-form').addEventListener('submit', async functi
     });
     const data = await res.json();
     if (res.ok && data.success) {
-      success.classList.remove('hidden');
+      let priceOk = true;
+      try {
+        const priceRes = await fetch('/api/update-pricing', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            whiteTeffPrice: Number(form.white.value),
+            redTeffPrice: Number(form.red.value),
+            adminSecret: form.password.value
+          })
+        });
+        const priceData = await priceRes.json();
+        if (!priceRes.ok || !priceData.success) { priceOk = false; }
+      } catch (priceErr) {
+        priceOk = false;
+      }
+      if (priceOk) {
+        success.classList.remove('hidden');
+      } else {
+        error.textContent = 'Contact info saved, but price update failed (admin password mismatch).';
+        error.classList.remove('hidden');
+      }
       form.password.value = '';
     } else {
       error.textContent = data.message === 'Wrong password' ? 'Incorrect password. Please try again.' : 'Something went wrong. Please try again.';

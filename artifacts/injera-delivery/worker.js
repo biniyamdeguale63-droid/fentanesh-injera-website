@@ -9,6 +9,20 @@ export default {
       return handleUpdatePricing(request, env);
     }
 
+    if (url.pathname === "/api/pricing" && request.method === "GET") {
+      let whiteRaw = null;
+      let redRaw = null;
+      try {
+        [whiteRaw, redRaw] = await Promise.all([
+          env.PRICING_KV.get("white_teff_price"),
+          env.PRICING_KV.get("red_teff_price"),
+        ]);
+      } catch (err) {}
+      const white = whiteRaw !== null && whiteRaw !== undefined ? parseFloat(whiteRaw) : DEFAULT_WHITE_PRICE;
+      const red = redRaw !== null && redRaw !== undefined ? parseFloat(redRaw) : DEFAULT_RED_PRICE;
+      return jsonResponse({ white: white, red: red });
+    }
+
     if (url.pathname.startsWith("/api/")) {
       const target = "https://fentanesh-injera-website.onrender.com" + url.pathname + url.search;
       return fetch(target, request);
