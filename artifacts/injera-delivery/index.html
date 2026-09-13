@@ -84,6 +84,10 @@ background-image: radial-gradient(#d2805c 0.75px, transparent 0.75px), radial-gr
 background-size: 30px 30px; background-position: 0 0, 15px 15px; opacity: 0.03;
 }
 </style>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#C78B1A">
+  <link rel="icon" type="image/svg+xml" href="/logo.svg">
+  <script>if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("/sw.js");});}</script>
 </head>
 <body class="antialiased overflow-x-hidden font-sans">
 
@@ -485,7 +489,11 @@ async function loadSiteSettings() {
   try {
     const res = await fetch('/api/settings');
     const data = await res.json();
+    const preservedWhite = window.siteSettings.white;
+    const preservedRed = window.siteSettings.red;
     window.siteSettings = data;
+    window.siteSettings.white = preservedWhite;
+    window.siteSettings.red = preservedRed;
     const phoneLink = document.getElementById('contact-phone-link');
     const emailLink = document.getElementById('contact-email-link');
     const phoneText = document.getElementById('contact-phone-text');
@@ -531,9 +539,27 @@ async function ownerSettings() {
     });
     const data = await res.json();
     if (res.ok && data.success) {
+      let priceSaved = true;
+      try {
+        const priceRes = await fetch('/api/update-pricing', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ whiteTeffPrice: Number(white), redTeffPrice: Number(red), adminSecret: password })
+        });
+        const priceData = await priceRes.json();
+        if (!priceRes.ok || !priceData.success) { priceSaved = false; }
+      } catch (priceErr) {
+        priceSaved = false;
+      }
       window.siteSettings = data;
+      window.siteSettings.white = Number(white);
+      window.siteSettings.red = Number(red);
       await loadSiteSettings();
-      alert('Settings updated successfully.');
+      if (priceSaved) {
+        alert('Settings updated successfully.');
+      } else {
+        alert('Contact info saved, but price update failed (check admin password).');
+      }
     } else {
       alert('Wrong password or server error.');
     }
