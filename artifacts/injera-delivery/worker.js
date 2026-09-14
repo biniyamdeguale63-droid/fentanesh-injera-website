@@ -52,6 +52,9 @@ export default {
 
       const headers = new Headers(assetResponse.headers);
       headers.delete("content-length");
+      headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
+      headers.delete("etag");
+      headers.delete("last-modified");
 
       return new Response(html, {
         status: assetResponse.status,
